@@ -1,2 +1,2 @@
-# vue-weather
-vue+node+webpack
+# -
+vue+webpack+es6+nodejs

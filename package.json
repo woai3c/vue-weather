@@ -1,0 +1,48 @@
+{
+  "name": "weather",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "dev": "webpack"
+  },
+  "keywords": [
+    "node",
+    "vue"
+  ],
+  "author": {
+    "name": "bin",
+    "email": "411020382@qq.com"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-preset-env": "^1.6.1",
+    "cheerio": "^1.0.0-rc.2",
+    "clean-webpack-plugin": "^0.1.19",
+    "css-loader": "^0.28.10",
+    "express": "^4.16.3",
+    "html-webpack-plugin": "^3.0.6",
+    "koa": "^2.5.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^4.0.2",
+    "socket.io": "^2.0.4",
+    "style-loader": "^0.20.3",
+    "vue": "^2.5.15",
+    "vue-loader": "^14.2.1",
+    "vue-router": "^3.0.1",
+    "vue-socket.io": "^2.1.1-b",
+    "vue-template-compiler": "^2.5.15",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.11",
+    "webpack-dev-middleware": "^3.0.1",
+    "webpack-dev-server": "^3.1.1",
+    "webpack-hot-middleware": "^2.21.2"
+  },
+  "dependencies": {}
+}
