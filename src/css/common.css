@@ -9,3 +9,7 @@ a {
 .sec-first p {
     text-align: center;
 }
+.sec-first {
+    width: 100%;
+    height: 25rem;
+}

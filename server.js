@@ -8,8 +8,7 @@ const server = new http.Server(app)
 const io = require('socket.io')(server)
 const cityData = require('./dist/cityData')
 const phantom = require('phantom')
-let url = 'http://www.weather.com.cn/weather1dn/'
-const arry = ['ray', 'blood', 'cold', 'clothes', 'car', 'wind']
+let url = 'http://www.weather.com.cn/weather1d/'
 
 app.use(require('webpack-dev-middleware')(compiler, {
     noInfo: true,
@@ -24,23 +23,48 @@ server.listen(8080)
 
 io.on('connection', socket => {
     socket.on('client', data => {
-        console.log(data)
-        console.log(getData(data))
-        
-    })
-});
-
-async function getData(data) {
-    const instance = await phantom.create();
-  const page = await instance.createPage();
-
-  const status = await page.open(url + cityData[data] + '.shtml');
-  const html = await page.evaluate(function() {
-    return document.getElementById('temp').innerHTML;
-    })
-
-
-
-  await instance.exit();
-  return html
-}
+        let phInstance = null
+        phantom.create()
+            .then(instance => {
+                phInstance = instance
+                return instance.createPage()
+            })
+            .then(page => {
+                page.open(url + cityData[data] + '.shtml').then(status => {
+                    page.evaluate(function() {
+                        const obj = {}
+                        const arry = ['ray', 'blood', 'cold', 'clothes', 'car', 'pollute']
+                        obj.time = $('.sk .time').text()
+                        obj.temp = $('.sk .tem').text()
+                        obj.day = {
+                            temp: $('.t .clearfix li:first-child .tem span').text(),
+                            status: $('.t .clearfix li:first-child .wea').text(),
+                            time: $('.sunUp span').text()
+                        }
+                        obj.night = {
+                            temp: $('.t .clearfix li:last-child .tem span').text(),
+                            status: $('.t .clearfix li:last-child .wea').text(),
+                            time: $('.sunDown span').text()
+                        }
+                        obj.warn = $('.blue').text()
+                        obj.wind = $('.sk .w').text()
+                        obj.humidity = $('.sk .h em').text()
+                        $('.livezs li').each(function(i, e) {
+                            obj[arry[i]] = {
+                                title: $(e).find('span').text(),
+                                text: $(e).find('p').text()
+                            }
+                        })
+                        return obj
+                    }).then(function(obj){
+                        socket.emit('server', obj)
+                        phInstance.exit()
+                    })
+                })
+            })
+            .catch(error => {
+                console.log(error)
+                phInstance.exit()
+            })
+    }) 
+})
