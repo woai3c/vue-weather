@@ -39,15 +39,15 @@ io.on('connection', socket => {
                         obj.day = {
                             temp: $('.t .clearfix li:first-child .tem span').text(),
                             status: $('.t .clearfix li:first-child .wea').text(),
-                            time: $('.sunUp span').text()
+                            time: $('.sunUp span').text().split(' ')[1]
                         }
                         obj.night = {
                             temp: $('.t .clearfix li:last-child .tem span').text(),
                             status: $('.t .clearfix li:last-child .wea').text(),
-                            time: $('.sunDown span').text()
+                            time: $('.sunDown span').text().split(' ')[1]
                         }
                         obj.warn = $('.blue').text()
-                        obj.wind = $('.sk .w').text()
+                        obj.wind = $('.sk .w').text().replace('风', '风 ')
                         obj.humidity = $('.sk .h em').text()
                         $('.livezs li').each(function(i, e) {
                             obj[arry[i]] = {

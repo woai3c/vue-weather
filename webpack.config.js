@@ -5,8 +5,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
     mode: 'development',
     entry: {
-  app: ['webpack-hot-middleware/client?reload=true' , './src/main.js']
-},
+        app: ['webpack-hot-middleware/client?reload=true' , './src/main.js']
+    },
+    devtool: 'inline-source-map',
     module: {
         rules: [
             {
@@ -25,6 +26,10 @@ module.exports = {
             {
                 test: /\.(png|svg|jpg|gif)$/,
                 use: ['file-loader']
+            },
+            {
+                test: /\.(woff|eot|ttf)\??.*$/,
+                loader: 'url-loader?name=fonts/[name].[md5:hash:hex:7].[ext]'
             }
         ]
     },
