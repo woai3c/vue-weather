@@ -8,6 +8,7 @@ const server = new http.Server(app)
 const io = require('socket.io')(server)
 const cityData = require('./dist/cityData')
 const phantom = require('phantom')
+const port = 8080
 let url = 'http://www.weather.com.cn/weather1d/'
 
 app.use(require('webpack-dev-middleware')(compiler, {
@@ -19,10 +20,11 @@ app.use(require('webpack-dev-middleware')(compiler, {
 app.use(require('webpack-hot-middleware')(compiler))
 app.use(express.static('dist'))
 
-server.listen(8080)
+server.listen(port)
 
 io.on('connection', socket => {
     socket.on('client', data => {
+        console.log(data)
         let phInstance = null
         phantom.create()
             .then(instance => {
@@ -57,6 +59,9 @@ io.on('connection', socket => {
                         })
                         return obj
                     }).then(function(obj){
+                        if (obj) {
+                            obj.serverTime = new Date().getHours()
+                        }
                         socket.emit('server', obj)
                         phInstance.exit()
                     })
@@ -68,3 +73,5 @@ io.on('connection', socket => {
             })
     }) 
 })
+
+console.log(`正在监听${port}端口`)

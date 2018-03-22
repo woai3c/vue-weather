@@ -2,9 +2,9 @@
     <section class="search">
         <div class="input-div">
             <i class="iconfont icon-tubiao111"></i>
-            <input v-model="city" placeholder="搜索城市">           
-            <a class="cancel" @click="cancel">取消</a>
-            <a class="cancel" @click="submit">确定</a>
+            <input v-model="cityTrim" placeholder="搜索城市|查询需5-10秒">           
+            <a class="btn" @click="cancel">取消</a>
+            <a class="btn" @click="submit">确定</a>
         </div>
     </section>
 </template>
@@ -15,13 +15,13 @@ export default {
     data() {
         return {
             city: '',
-            re: /^[\u4e00-\u9fa5]*$/
+            re: /^[\u4e00-\u9fa5]*$/ // 验证中文
         }
     },
     methods: {
         cancel: function() {
-            this.$('.search').style.height = 0
-            this.$('.input-div').style.display = 'none'
+            this.search.style.height = 0
+            this.inputDiv.style.display = 'none'
         },
         submit: function() {
             if (this.city == '') {
@@ -29,16 +29,23 @@ export default {
             } else if (!this.re.test(this.city)) {
                 alert('请输入正确的城市名')
             } else {
-                this.$('.search').style.height = 0
-                this.$('.input-div').style.display = 'none'
-                this.$('.loadding').style.display = 'block'
-                this.$emit('transferCity', this.city)
+                this.search.style.height = 0
+                this.inputDiv.style.display = 'none'
+                this.$emit('transferCity', this.city) // 触发transferCity事件向父组件传值
             }
-        },
-        $: function(selector) {
-            return document.querySelector(selector)
         }
-    }
+    },
+    computed: {
+        cityTrim:{
+            get: function() {
+                return this.city
+            },
+            set: function(val) {
+                this.city = val.trim()
+            }
+        }
+    },
+    props: ['search', 'loading', 'inputDiv'] // 接收父组件传值
 }
 </script>
 
@@ -74,7 +81,7 @@ export default {
         padding: 10px;
         border-bottom: 1px solid #e6e6e6;
     }
-    .search .cancel {
+    .search .btn {
         float: right;
         font-size: 14px;
         color: #434343;

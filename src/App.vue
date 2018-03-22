@@ -1,7 +1,7 @@
 <template>
     <div class="app">
         <section class="sec-first">
-            <p class="city"><span @click="search"><i class="iconfont icon-dingwei"></i> {{ city }}</span> {{ time }}</p>
+            <p class="city"><span @click="searchFunc"><i class="iconfont icon-dingwei"></i> {{ city }}</span> {{ time }}</p>
             <p class="temp">{{ temp }}</p>            
             <p class="status" v-if="new Date().getHours() < 18">{{ day.status }}</p>
             <p class="status" v-else>{{ night.status }}</p>
@@ -91,14 +91,16 @@
                 </li>
             </ul>
         </section>
-        <Search @transferCity="getCity" />
-        <Loadding/>
+        <!-- 接收子组件传值 并向子组件传3个值-->
+        <Search @transferCity="getCity" :search="search" :loading="loading" :inputDiv="inputDiv"/>
+        <!-- 向子组件传3个值 -->
+        <loading :search="search" :loading="loading" :inputDiv="inputDiv"/>
     </div>
 </template>
 
 <script>
 import Search from './components/Search'
-import Loadding from './components/Loadding'
+import Loading from './components/loading'
 import cloudImg from './images/weather/cloud.jpg'
 import hazeImg from './images/weather/haze.jpg'
 import overcastImg from './images/weather/overcast.jpg'
@@ -108,15 +110,18 @@ import snowImg from './images/weather/snow.jpg'
 import sunImg from './images/weather/sun.jpg'
 import thunderImg from './images/weather/thunder.jpg'
 import fogImg from './images/weather/fog.jpg'
+import nightImg from './images/weather/night.jpg'
 
 export default {
     name: 'App',
     components: {
-        Search,
-        Loadding
+        Search, // 相当于Search:Search
+        Loading
     },
     data() {
     	return {
+            serverTime: '',
+            cacheCity: '',
     		city: '',
             blood: {
                 title: '',
@@ -142,94 +147,69 @@ export default {
                 title: '',
                 text: ''
             },
-            humidity: '',
+            humidity: '暂无',
             temp: '',
             day: {
-                temp: '',
+                temp: '暂无',
                 status: '',
                 time: ''
             },
             night: {
-                temp: '',
+                temp: '暂无',
                 status: '',
                 time: ''
             },
-            wind: '',
+            wind: '暂无',
             warn: '',
             time: '',
-            imgUrl: ''
+            imgUrl: '',
+            loading: null,
+            search: null,
+            inputDiv: null
     	}
     },
-    mounted: function() {
-        this.city = remote_ip_info['city'].replace(/市|县/, '') // 根据IP地址取得城市名称
-        // this.$socket.emit('client', this.city)
-        const obj = {
-            "blood": {
-                "text": "天气条件好，血糖不易波动，可适时进行户外锻炼。",
-                "title": "不易波动"
-            },
-            "car": {
-                "text": "无雨且风力较小，易保持清洁度。",
-                "title": "较适宜"
-            },
-            "clothes": {
-                "text": "建议穿薄外套或牛仔裤等服装。",
-                "title": "较舒适"
-            },
-            "cold": {
-                "text": "昼夜温差很大，注意预防感冒。",
-                "title": "易发"
-            },
-            "day": {
-                "status": "多云",
-                "temp": "19",
-                "time": "06:26"
-            },
-            "humidity": "50%",
-            "night": {
-                "status": "晴",
-                "temp": "8",
-                "time": "18:34"
-            },
-            "pollute": {
-                "text": "易感人群应适当减少室外活动。",
-                "title": "中"
-            },
-            "ray": {
-                "text": "辐射较弱，涂擦SPF12-15、PA+护肤品。",
-                "title": "弱"
-            },
-            "temp": "14℃",
-            "time": "10:55 实况",
-            "warn": "",
-            "wind": "东风4级"
-        }
-        this.render(obj)
+    mounted: function() { 
+        this.search = this.$('.search')
+        this.loading = this.$('.loading')
+        this.inputDiv = this.$('.input-div')
+        // 根据IP地址取得城市名称 remote_ip_info['city']为IP接口方法 在index.html里引入JS
+        this.city = remote_ip_info['city'].replace(/市|县/, '') 
+        this.$socket.emit('client', this.city) // 向服务器传值
+        this.loading.style.display = 'block'
     },
-    sockets:{
+    sockets:{ // socket.io监听事件
 	    connect: function(){
 	    	console.log('socket connected')
 		},
-	    server: function(obj){
-            console.log(obj)
+	    server: function(obj){ // 接收服务器传来的值
+            if (!obj) {
+                alert('获取数据失败')
+                this.loading.style.display = 'none'
+                return
+            }
 	    	this.render(obj)
+            this.loading.style.display = 'none'
+            if (this.cacheCity) {
+                this.city = this.cacheCity
+                this.cacheCity = ''
+            }
 	    }
 	},
 	methods: {
-		search: function(event){
+		searchFunc: function(event){ // 弹出搜索层
 			this.$('.search').style.height = '100%'
             this.$('.input-div').style.display = 'block'
-	    	// this.$socket.emit('client', val)
 	    },
         $: function(selector) {
             return document.querySelector(selector)
         },
-        getCity: function(msg) {
-            console.log(msg)
-            this.city = msg
+        getCity: function(msg) { // 接收子组件传值
+            this.cacheCity = msg
             this.$socket.emit('client', msg)
+            this.loading.style.display = 'block'
         },
         render: function(obj) {
+            this.serverTime = obj.serverTime
             this.temp = obj.temp
             this.day = obj.day
             this.night = obj.night
@@ -244,7 +224,7 @@ export default {
             this.cold = obj.cold
             this.ray = obj.ray
 
-            const keys = {
+            const keys = { 
                 '云': cloudImg,
                 '雨': rainImg,
                 '霾': hazeImg,
@@ -256,12 +236,135 @@ export default {
                 '雾': fogImg
             }
 
-            for (let key in keys) {
+            for (let key in keys) { // 根据天气情况展示背景图
                 if (obj.day.status.indexOf(key) !== -1) {
-                    document.querySelector('.sec-first').style.backgroundImage = 'url(' + keys[key] + ')'
+                    if ('云晴'.indexOf(key) !== -1 && this.serverTime > 18) {
+                        document.querySelector('.sec-first').style.backgroundImage = 'url(' + nightImg + ')'
+                    } else {
+                        document.querySelector('.sec-first').style.backgroundImage = 'url(' + keys[key] + ')'
+                    }
                 }
             }
         }
 	}
 }
 </script>
+
+<style>
+    .app {
+        max-width: 1000px;
+    }
+    .iconfont {
+        font-size: 1.2rem !important;
+    }
+    .sec-first p {
+        text-align: center;
+        height: 30px;
+        line-height: 30px;
+    }
+    .sec-first {
+        width: 100%;
+        height: 400px;
+        background: url('./images/weather/cloud.jpg');
+        color: #fff;
+        font-size: 16px;
+    }
+    .sec-first .city {
+        padding-top: 20px;
+        margin-bottom: 10px;
+    }
+    .sec-first .temp {
+        margin-top: 80px;
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+    .sec-first .status {
+        font-size: 20px;
+    }
+    .sec-first .wind {
+        margin-top: 20px;
+    }
+    .sec-first .warn {
+        padding: 10px;
+        border-radius: 10px;
+        color: #fff;
+        background-color: #f0cc35;
+        margin: auto;
+        display: block;
+        text-align: center;
+        margin-top: 40px;
+        width: 100px;
+    }
+    .sec-second li {
+        padding: 1rem 0;
+    }
+    .sec-second p {
+        text-align: center;
+    }
+    .sec-second .day-div {
+        border-right: 1px solid #e3e3e3;
+    }
+    .sec-second .relative {
+        display: flex;
+        justify-content: space-around;
+        height: 1.5rem;
+    }
+    .sec-second .relative span {
+        vertical-align: middle;
+        height: 1.2rem;
+        line-height: 1.2rem;
+    }
+    .sec-second .title {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    .sec-third li {
+        vertical-align: top;
+        height: 6rem;
+        font-size: 0;
+        box-sizing: border-box;
+    }
+    .sec-third li img {
+        width: 2rem;
+    }
+    .sec-third li div {
+        vertical-align: top;
+        display: inline-block;
+        width: 50%;
+        height: 100%;
+        font-size: 14px;
+    }
+    .sec-third li:first-child,
+    .sec-third li:nth-child(2) {
+        border-top: 1px solid #e6e6e6;
+    }
+    .sec-third li:nth-child(odd) {
+        border-right: none;
+    }
+    .sec-third li {
+        border: 1px solid #e6e6e6;
+        border-top: none;
+    }
+    .sec-third li div:first-child img {
+        display: block;
+        margin: auto;
+    }
+    .sec-third li div:first-child {
+        padding-top: 1.2rem;
+    }
+    .sec-third li div:first-child p {
+        text-align: center;
+    }
+    .sec-third li div:last-child {
+        padding-top: 0.5rem;
+    }
+    .sec-third li div:last-child p {
+        font-size: 12px;
+    }
+    .sec-third li div:last-child p:first-child {
+        text-align: center;
+    }
+    .sec-third li div p:first-child {
+        font-size: 14px;
+    }
+</style>
