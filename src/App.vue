@@ -7,7 +7,7 @@
             <p class="status" v-else>{{ night.status }}</p>
             <p class="wind"><i class="iconfont icon-fengxiang"></i> {{ wind }}</p>
             <p class="hum"><i class="iconfont icon-shidu"></i> 相对湿度 {{ humidity }}</p>
-            <a class="warn" v-if="warn">{{ warn }}</a>
+            <a class="aqi" :style="{ background: aqi.bgColor }">{{ aqi.text }} {{ aqi.num }}</a>
         </section>
         <section class="sec-second">
             <ul>
@@ -31,7 +31,16 @@
             <ul>
                 <li>
                     <div>
-                        <img src="./images/life/ray.png">
+                        <img src="./images/life/car.svg">
+                        <p>尾号限行</p>
+                    </div>
+                    <div class="car-number">
+                        {{ limit }}
+                    </div>                   
+                </li>
+                <li>
+                    <div>
+                        <img src="./images/life/ray.svg">
                         <p>紫外线指数</p>
                     </div>
                     <div>
@@ -41,7 +50,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/blood.png">
+                        <img src="./images/life/sport.svg">
                         <p>血糖指数</p>
                     </div>
                     <div>
@@ -51,7 +60,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/cold.png">
+                        <img src="./images/life/cold.svg">
                         <p>感冒指数</p>
                     </div>
                     <div>
@@ -61,7 +70,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/clothes.png">
+                        <img src="./images/life/clothes.svg">
                         <p>穿衣指数</p>
                     </div>
                     <div>
@@ -71,7 +80,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/car.png">
+                        <img src="./images/life/wash.svg">
                         <p>洗车指数</p>
                     </div>
                     <div>
@@ -81,7 +90,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/pollute.png">
+                        <img src="./images/life/pollute.svg">
                         <p>空气污染扩散指数</p>
                     </div>
                     <div>
@@ -120,6 +129,7 @@ export default {
     },
     data() {
     	return {
+            limit: '',
             serverTime: '',
             cacheCity: '',
     		city: '',
@@ -160,7 +170,11 @@ export default {
                 time: ''
             },
             wind: '暂无',
-            warn: '',
+            aqi: {
+                num: '',
+                bgColor: '',
+                text: ''
+            },
             time: '',
             imgUrl: '',
             loading: null,
@@ -209,21 +223,6 @@ export default {
             this.loading.style.display = 'block'
         },
         render: function(obj) {
-            this.serverTime = obj.serverTime
-            this.temp = obj.temp
-            this.day = obj.day
-            this.night = obj.night
-            this.wind = obj.wind
-            this.humidity = obj.humidity
-            this.time = obj.time
-            this.warn = obj.warn
-            this.pollute = obj.pollute
-            this.blood = obj.blood
-            this.car = obj.car
-            this.clothes = obj.clothes
-            this.cold = obj.cold
-            this.ray = obj.ray
-
             const keys = { 
                 '云': cloudImg,
                 '雨': rainImg,
@@ -235,6 +234,22 @@ export default {
                 '雷': thunderImg,
                 '雾': fogImg
             }
+
+            this.serverTime = obj.serverTime
+            this.temp = obj.temp
+            this.day = obj.day
+            this.night = obj.night
+            this.wind = obj.wind
+            this.humidity = obj.humidity
+            this.time = obj.time
+            this.pollute = obj.pollute
+            this.blood = obj.blood
+            this.car = obj.car
+            this.clothes = obj.clothes
+            this.cold = obj.cold
+            this.ray = obj.ray
+            this.aqi = obj.aqi
+            this.limit = obj.limit? obj.limit : '无'
 
             for (let key in keys) { // 根据天气情况展示背景图
                 if (obj.day.status.indexOf(key) !== -1) {
@@ -284,19 +299,18 @@ export default {
     .sec-first .wind {
         margin-top: 20px;
     }
-    .sec-first .warn {
+    .sec-first .aqi {
         padding: 10px;
         border-radius: 10px;
         color: #fff;
-        background-color: #f0cc35;
         margin: auto;
         display: block;
         text-align: center;
         margin-top: 40px;
-        width: 100px;
+        width: 80px;
     }
     .sec-second li {
-        padding: 1rem 0;
+        padding-top: 1rem;
     }
     .sec-second p {
         text-align: center;
@@ -320,7 +334,6 @@ export default {
     }
     .sec-third li {
         vertical-align: top;
-        height: 6rem;
         font-size: 0;
         box-sizing: border-box;
     }
@@ -339,11 +352,15 @@ export default {
         border-top: 1px solid #e6e6e6;
     }
     .sec-third li:nth-child(odd) {
-        border-right: none;
+        border-right: 1px solid #e6e6e6;
     }
     .sec-third li {
         border: 1px solid #e6e6e6;
         border-top: none;
+        border-left: none;
+    }
+    .sec-third li div {
+        box-sizing: border-box;
     }
     .sec-third li div:first-child img {
         display: block;
@@ -366,5 +383,9 @@ export default {
     }
     .sec-third li div p:first-child {
         font-size: 14px;
+    }
+    .sec-third .car-number {
+        text-align: center;
+        padding-top: 2rem !important;
     }
 </style>
