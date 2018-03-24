@@ -48,7 +48,14 @@ io.on('connection', socket => {
                             status: $('.t .clearfix li:last-child .wea').text(),
                             time: $('.sunDown span').text().split(' ')[1]
                         }
-                        obj.warn = $('.blue').text()
+                        const tempAqi = $(".pol a")
+                        const str = tempAqi.text()
+                        obj.limit = $('.limit').text().trim()
+                        obj.aqi = {
+                        	num: parseFloat(str),
+                        	bgColor: tempAqi.css('color'),
+                        	text: str[str.length - 1]
+                        }
                         obj.wind = $('.sk .w').text().replace('风', '风 ')
                         obj.humidity = $('.sk .h em').text()
                         $('.livezs li').each(function(i, e) {
