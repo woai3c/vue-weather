@@ -3,8 +3,7 @@
         <section class="sec-first">
             <p class="city"><span @click="searchFunc"><i class="iconfont icon-dingwei"></i> {{ city }}</span> {{ time }}</p>
             <p class="temp">{{ temp }}</p>            
-            <p class="status" v-if="new Date().getHours() < 18">{{ day.status }}</p>
-            <p class="status" v-else>{{ night.status }}</p>
+            <p class="status">{{ left.status }}</p>
             <p class="wind"><i class="iconfont icon-fengxiang"></i> {{ wind }}</p>
             <p class="hum"><i class="iconfont icon-shidu"></i> 相对湿度 {{ humidity }}</p>
             <a class="aqi" :style="{ background: aqi.bgColor }">{{ aqi.text }} {{ aqi.num }}</a>
@@ -12,20 +11,24 @@
         <section class="sec-second">
             <ul>
                 <li>
-                    <div class="day-div">
-                        <p class="title">白天</p>
-                        <p class="relative"><span>{{ day.status }}</span><span>{{ day.temp }}℃</span></p>
-                        <p class="relative"><span>日出</span><span>{{ day.time }}</span></p>
+                    <div class="left-div">
+                        <p class="title">{{ left.title }}</p>
+                        <p class="relative"><span>{{ left.status }}</span><span>{{ left.temp }}℃</span></p>
+                        <p class="relative"><span>{{ left.time[0] }}</span><span>{{ left.time[1] }}</span></p>
                     </div>               
                 </li>
                 <li>
                     <div>
-                        <p class="title">夜间</p>
-                        <p class="relative"><span>{{ night.status }}</span><span>{{ night.temp }}℃</span></p>
-                        <p class="relative"><span>日落</span><span>{{ night.time }}</span></p>
+                        <p class="title">{{ right.title }}</p>
+                        <p class="relative"><span>{{ right.status }}</span><span>{{ right.temp }}℃</span></p>
+                        <p class="relative"><span>{{ right.time[0] }}</span><span>{{ right.time[1] }}</span></p>
                     </div>                   
                 </li>
             </ul>
+        </section>
+        <section class="sec-future">
+            <a @click="getFuture" class="link-future">查询未来6天</a>
+            <router-view></router-view>
         </section>
         <section class="sec-third">
             <ul>
@@ -53,7 +56,7 @@
                         <img src="./images/life/sport.svg">
                         <p>血糖指数</p>
                     </div>
-                    <div>
+                    <div class="blood-div">
                         <p>{{ blood.title }}</p>
                         <p>{{ blood.text }}</p>
                     </div>                   
@@ -129,6 +132,7 @@ export default {
     },
     data() {
     	return {
+            path: '/future/' + this.city,
             limit: '',
             serverTime: '',
             cacheCity: '',
@@ -159,15 +163,17 @@ export default {
             },
             humidity: '暂无',
             temp: '',
-            day: {
+            left: {
+                title: '',
                 temp: '暂无',
                 status: '',
-                time: ''
+                time: []
             },
-            night: {
+            right: {
+                title: '',
                 temp: '暂无',
                 status: '',
-                time: ''
+                time: []
             },
             wind: '暂无',
             aqi: {
@@ -182,20 +188,21 @@ export default {
             inputDiv: null
     	}
     },
-    mounted: function() { 
+    mounted() { 
         this.search = this.$('.search')
         this.loading = this.$('.loading')
         this.inputDiv = this.$('.input-div')
         // 根据IP地址取得城市名称 remote_ip_info['city']为IP接口方法 在index.html里引入JS
         this.city = remote_ip_info['city'].replace(/市|县/, '') 
+        this.$router.push('/')
         this.$socket.emit('client', this.city) // 向服务器传值
         this.loading.style.display = 'block'
     },
     sockets:{ // socket.io监听事件
-	    connect: function(){
+	    connect() {
 	    	console.log('socket connected')
 		},
-	    server: function(obj){ // 接收服务器传来的值
+	    server(obj) { // 接收服务器传来的值
             if (!obj) {
                 alert('获取数据失败')
                 this.loading.style.display = 'none'
@@ -207,22 +214,36 @@ export default {
                 this.city = this.cacheCity
                 this.cacheCity = ''
             }
-	    }
+	    },
+        futureServer(obj) {
+            if (!obj) {
+                alert('获取数据失败')
+                this.loading.style.display = 'none'
+                return
+            }
+            this.renderFuture(obj)
+            this.loading.style.display = 'none'
+        }
 	},
 	methods: {
-		searchFunc: function(event){ // 弹出搜索层
+		searchFunc(event) { // 弹出搜索层
 			this.$('.search').style.height = '100%'
             this.$('.input-div').style.display = 'block'
 	    },
-        $: function(selector) {
+        $(selector) {
             return document.querySelector(selector)
         },
-        getCity: function(msg) { // 接收子组件传值
+        getCity(msg) { // 接收子组件传值
             this.cacheCity = msg
+            this.$router.push('/')
             this.$socket.emit('client', msg)
             this.loading.style.display = 'block'
         },
-        render: function(obj) {
+        getFuture() {
+            this.loading.style.display = 'block'
+            this.$router.push({path: '/future/' + this.city})
+        },
+        render(obj) {
             const keys = { 
                 '云': cloudImg,
                 '雨': rainImg,
@@ -237,8 +258,8 @@ export default {
 
             this.serverTime = obj.serverTime
             this.temp = obj.temp
-            this.day = obj.day
-            this.night = obj.night
+            this.left = obj.left
+            this.right = obj.right
             this.wind = obj.wind
             this.humidity = obj.humidity
             this.time = obj.time
@@ -251,15 +272,33 @@ export default {
             this.aqi = obj.aqi
             this.limit = obj.limit? obj.limit : '无'
 
+            const tempStatus = obj.left.status
             for (let key in keys) { // 根据天气情况展示背景图
-                if (obj.day.status.indexOf(key) !== -1) {
-                    if ('云晴'.indexOf(key) !== -1 && this.serverTime > 18) {
+                if (tempStatus.indexOf(key) !== -1) {
+                    if ('晴云'.indexOf(key) !== -1 && (this.serverTime > 18 || this.serverTime < 6)) {
                         document.querySelector('.sec-first').style.backgroundImage = 'url(' + nightImg + ')'
                     } else {
                         document.querySelector('.sec-first').style.backgroundImage = 'url(' + keys[key] + ')'
                     }
                 }
             }
+        },
+        renderFuture(obj) {
+            let html = ''
+            obj.forEach(e => {
+                html += `<li style='background: ${e.bg}'>`
+                        + `<p>${e.title}</p>`
+                        + `<p>${e.status}</p>`
+                        + `<p>${e.temp}</p>`
+                if (e.wind[0] == e.wind[1]) {
+                    html += `<p>${e.wind[0]}</p>`
+                } else {
+                    html += `<p>${e.wind[0]} - ${e.wind[1]}</p>`
+                }
+                        
+                html += `<p>${e.windLevel}</p></li>`
+            })
+            this.$('.ul-future').innerHTML = html
         }
 	}
 }
@@ -307,15 +346,17 @@ export default {
         display: block;
         text-align: center;
         margin-top: 40px;
-        width: 80px;
+        width: 4rem;
     }
     .sec-second li {
         padding-top: 1rem;
+        color: #888;
+        font-size: 14px;
     }
     .sec-second p {
         text-align: center;
     }
-    .sec-second .day-div {
+    .sec-second .left-div {
         border-right: 1px solid #e3e3e3;
     }
     .sec-second .relative {
@@ -329,7 +370,7 @@ export default {
         line-height: 1.2rem;
     }
     .sec-second .title {
-        font-size: 1.1rem;
+        font-size: 1rem;
         margin-bottom: 0.5rem;
     }
     .sec-third li {
@@ -373,7 +414,7 @@ export default {
         text-align: center;
     }
     .sec-third li div:last-child {
-        padding-top: 0.5rem;
+        padding-top: 1rem;
     }
     .sec-third li div:last-child p {
         font-size: 12px;
@@ -387,5 +428,22 @@ export default {
     .sec-third .car-number {
         text-align: center;
         padding-top: 2rem !important;
+    }
+    .sec-third li .blood-div {
+        padding-top: 0.5rem !important;
+    }
+    .sec-future .link-future {
+        background: lightblue;
+        margin: auto;
+        display: block;
+        text-align: center;
+        width: 6rem;
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 2rem;
+    }
+    .sec-future {
+        overflow: hidden;
     }
 </style>

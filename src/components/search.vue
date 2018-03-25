@@ -19,11 +19,11 @@ export default {
         }
     },
     methods: {
-        cancel: function() {
+        cancel() {
             this.search.style.height = 0
             this.inputDiv.style.display = 'none'
         },
-        submit: function() {
+        submit() {
             if (this.city == '') {
                 alert('请输入城市名')
             } else if (!this.re.test(this.city)) {
@@ -37,10 +37,10 @@ export default {
     },
     computed: {
         cityTrim:{
-            get: function() {
+            get() {
                 return this.city
             },
-            set: function(val) {
+            set(val) {
                 this.city = val.trim()
             }
         }
