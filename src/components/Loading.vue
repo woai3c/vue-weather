@@ -8,8 +8,7 @@
 
 <script>
 export default {
-    name: 'Loading',
-    props: ['search', 'loading', 'inputDiv'] // 接收父组件传值
+    name: 'Loading'
 }
 </script>
 

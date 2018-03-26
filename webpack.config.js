@@ -5,9 +5,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
     mode: 'development',
     entry: {
-        app: ['webpack-hot-middleware/client?reload=true' , './src/main.js']
+        app: ['webpack-hot-middleware/client?reload=true' , './src/main.js'] // 开启热模块更新
     },
-    devtool: 'inline-source-map',
     module: {
         rules: [
             {

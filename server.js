@@ -6,11 +6,11 @@ const compiler = webpack(webpackConfig)
 const app = express()
 const server = new http.Server(app)
 const io = require('socket.io')(server)
-const cityData = require('./src/cityData')
+const cityData = require('./src/cityData') // 城市数据
 const phantom = require('phantom')
 const port = 8080
-let url = 'http://www.weather.com.cn/weather1d/'
-let futureUrl = 'http://www.weather.com.cn/weather/'
+let url = 'http://www.weather.com.cn/weather1d/' // 今天天气
+let futureUrl = 'http://www.weather.com.cn/weather/' // 未来6天
 
 app.use(require('webpack-dev-middleware')(compiler, {
     noInfo: true,
@@ -19,7 +19,7 @@ app.use(require('webpack-dev-middleware')(compiler, {
     }
 }))
 app.use(require('webpack-hot-middleware')(compiler))
-app.use(express.static('dist'))
+app.use(express.static('dist')) // 将dist设为根目录
 
 server.listen(port)
 

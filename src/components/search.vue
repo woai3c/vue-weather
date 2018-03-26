@@ -45,7 +45,7 @@ export default {
             }
         }
     },
-    props: ['search', 'loading', 'inputDiv'] // 接收父组件传值
+    props: ['search', 'inputDiv'] // 接收父组件传值
 }
 </script>
 

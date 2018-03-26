@@ -103,10 +103,9 @@
                 </li>
             </ul>
         </section>
-        <!-- 接收子组件传值 并向子组件传3个值-->
-        <Search @transferCity="getCity" :search="search" :loading="loading" :inputDiv="inputDiv"/>
-        <!-- 向子组件传3个值 -->
-        <loading :search="search" :loading="loading" :inputDiv="inputDiv"/>
+        <!-- 接收子组件传值 并向子组件传值-->
+        <Search @transferCity="getCity" :search="search" :inputDiv="inputDiv"/>
+        <loading/>
     </div>
 </template>
 
@@ -132,7 +131,6 @@ export default {
     },
     data() {
     	return {
-            path: '/future/' + this.city,
             limit: '',
             serverTime: '',
             cacheCity: '',
@@ -188,14 +186,14 @@ export default {
             inputDiv: null
     	}
     },
-    mounted() { 
+    mounted() { // el 被新创建的 vm.$el 替换，并挂载到实例上去之后调用
         this.search = this.$('.search')
         this.loading = this.$('.loading')
         this.inputDiv = this.$('.input-div')
         // 根据IP地址取得城市名称 remote_ip_info['city']为IP接口方法 在index.html里引入JS
         this.city = remote_ip_info['city'].replace(/市|县/, '') 
-        this.$router.push('/')
-        this.$socket.emit('client', this.city) // 向服务器传值
+        this.$router.push('/') // 切换到首页
+        this.$socket.emit('client', this.city) // 向服务器查询天气
         this.loading.style.display = 'block'
     },
     sockets:{ // socket.io监听事件
@@ -204,7 +202,7 @@ export default {
 		},
 	    server(obj) { // 接收服务器传来的值
             if (!obj) {
-                alert('获取数据失败')
+                alert('未查询到数据')
                 this.loading.style.display = 'none'
                 return
             }
@@ -215,15 +213,6 @@ export default {
                 this.cacheCity = ''
             }
 	    },
-        futureServer(obj) {
-            if (!obj) {
-                alert('获取数据失败')
-                this.loading.style.display = 'none'
-                return
-            }
-            this.renderFuture(obj)
-            this.loading.style.display = 'none'
-        }
 	},
 	methods: {
 		searchFunc(event) { // 弹出搜索层
@@ -239,9 +228,15 @@ export default {
             this.$socket.emit('client', msg)
             this.loading.style.display = 'block'
         },
-        getFuture() {
+        getFuture() { // 切换router
             this.loading.style.display = 'block'
-            this.$router.push({path: '/future/' + this.city})
+            this.$router.push({
+                name: 'Future', 
+                params: { 
+                    city: this.city,
+                    loading: this.loading
+                }
+            })
         },
         render(obj) {
             const keys = { 
@@ -283,23 +278,6 @@ export default {
                 }
             }
         },
-        renderFuture(obj) {
-            let html = ''
-            obj.forEach(e => {
-                html += `<li style='background: ${e.bg}'>`
-                        + `<p>${e.title}</p>`
-                        + `<p>${e.status}</p>`
-                        + `<p>${e.temp}</p>`
-                if (e.wind[0] == e.wind[1]) {
-                    html += `<p>${e.wind[0]}</p>`
-                } else {
-                    html += `<p>${e.wind[0]} - ${e.wind[1]}</p>`
-                }
-                        
-                html += `<p>${e.windLevel}</p></li>`
-            })
-            this.$('.ul-future').innerHTML = html
-        }
 	}
 }
 </script>
