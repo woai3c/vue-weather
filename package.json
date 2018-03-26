@@ -4,8 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "webpack-dev-server",
-    "dev": "webpack"
+    "dev": "node server.js"
   },
   "keywords": [
     "node",
