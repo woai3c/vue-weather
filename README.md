@@ -13,7 +13,7 @@
 爬虫最大的缺点就是慢 这个天气网站平均查询一次数据要5-10秒 毫无实用性 不过非常适合作为练习的项目<br>
 这个项目涉及到的知识点虽然比较多 但是并不难 代码简单明了 只是逻辑有点绕 每个知识点上我都放了一个介绍该知识点的网站链接<br>
 
-流程
+### 项目流程走向
 ```
 npm run dev
 ```
@@ -39,4 +39,19 @@ this.$socket.emit('futureClient', this.params.city)
 socket.emit('futureServer', obj)
 ```
 
-
+#### 你可以把代码克隆到自己的电脑上执行
+```
+git clone https://github.com/woai3c/vue-weather.git
+```
+#### 下载依赖包
+```
+npm install
+```
+#### 运行项目
+```
+npm run dev
+```
+#### 访问网站
+```
+localhost:8080
+```
