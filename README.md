@@ -55,4 +55,4 @@ npm run dev
 ```
 localhost:8080
 ```
-![img](https://raw.githubusercontent.com/woai3c/vue-weather/master/src/images/weather.gif)
+![img](https://raw.githubusercontent.com/woai3c/vue-weather/master/src/img/weather.gif)
