@@ -34,7 +34,7 @@
             <ul>
                 <li>
                     <div>
-                        <img src="./images/life/car.svg">
+                        <img src="./img/life/car.svg">
                         <p>尾号限行</p>
                     </div>
                     <div class="car-number">
@@ -43,7 +43,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/ray.svg">
+                        <img src="./img/life/ray.svg">
                         <p>紫外线指数</p>
                     </div>
                     <div>
@@ -53,7 +53,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/sport.svg">
+                        <img src="./img/life/sport.svg">
                         <p>血糖指数</p>
                     </div>
                     <div class="blood-div">
@@ -63,7 +63,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/cold.svg">
+                        <img src="./img/life/cold.svg">
                         <p>感冒指数</p>
                     </div>
                     <div>
@@ -73,7 +73,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/clothes.svg">
+                        <img src="./img/life/clothes.svg">
                         <p>穿衣指数</p>
                     </div>
                     <div>
@@ -83,7 +83,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/wash.svg">
+                        <img src="./img/life/wash.svg">
                         <p>洗车指数</p>
                     </div>
                     <div>
@@ -93,7 +93,7 @@
                 </li>
                 <li>
                     <div>
-                        <img src="./images/life/pollute.svg">
+                        <img src="./img/life/pollute.svg">
                         <p>空气污染扩散指数</p>
                     </div>
                     <div>
@@ -112,16 +112,16 @@
 <script>
 import Search from './components/Search'
 import Loading from './components/loading'
-import cloudImg from './images/weather/cloud.jpg'
-import hazeImg from './images/weather/haze.jpg'
-import overcastImg from './images/weather/overcast.jpg'
-import rainImg from './images/weather/rain.jpg'
-import sanddustImg from './images/weather/sanddust.jpg'
-import snowImg from './images/weather/snow.jpg'
-import sunImg from './images/weather/sun.jpg'
-import thunderImg from './images/weather/thunder.jpg'
-import fogImg from './images/weather/fog.jpg'
-import nightImg from './images/weather/night.jpg'
+import cloudImg from './img/weather/cloud.jpg'
+import hazeImg from './img/weather/haze.jpg'
+import overcastImg from './img/weather/overcast.jpg'
+import rainImg from './img/weather/rain.jpg'
+import sanddustImg from './img/weather/sanddust.jpg'
+import snowImg from './img/weather/snow.jpg'
+import sunImg from './img/weather/sun.jpg'
+import thunderImg from './img/weather/thunder.jpg'
+import fogImg from './img/weather/fog.jpg'
+import nightImg from './img/weather/night.jpg'
 
 export default {
     name: 'App',
@@ -297,7 +297,7 @@ export default {
     .sec-first {
         width: 100%;
         height: 400px;
-        background: url('./images/weather/cloud.jpg');
+        background: url('./img/weather/cloud.jpg');
         color: #fff;
         font-size: 16px;
     }
