@@ -130,7 +130,7 @@ export default {
         Loading
     },
     data() {
-    	return {
+    	return { // 初始化数据
             limit: '',
             serverTime: '',
             cacheCity: '',
